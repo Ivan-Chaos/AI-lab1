@@ -21,12 +21,12 @@ const BaseLayout = (props) => {
 
     return (<div className={classes.BaseLayout}>
         <nav>
-            <h1>DREYFUS MODEL OF SKILL ACQUISITION</h1>
+            <h1 onClick={()=>navigate('/')}>DREYFUS MODEL OF SKILL ACQUISITION</h1>
             {user && 
                 <div className={classes.userDiv}>
                     <div className={classes.link} onClick={()=>navigate('/stats')}>Stats</div>
                     <PersonIcon className={classes.personIcon}/>
-                    <div className={classes.username}>{user.email.replace('@lab1.com', '')}</div>
+                    <div className={classes.username} onClick={()=>navigate('/')}>{user.email.replace('@lab1.com', '')}</div>
                     <div className={classes.logout} onClick={()=>logout()}>Log out</div>
                 </div>
             }

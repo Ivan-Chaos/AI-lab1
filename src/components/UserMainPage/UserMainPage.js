@@ -25,7 +25,7 @@ const UserMainPage = () => {
 
 
     useEffect(() => {
-        const fetchQuestions = async ()=>{
+        const fetchQuestions = async () => {
             const questions = await getQuestions();
             setQuestions(questions);
         }
@@ -34,18 +34,18 @@ const UserMainPage = () => {
     }, []);
 
     useEffect(() => {
-        async function fetchData(){
+        async function fetchData() {
             const answers = await getProgress(user.email.replace("@lab1.com", ''));
             setAnswers(answers);
             let lprogress = [];
             //no document in firebase
-            if(!answers){
+            if (!answers) {
                 questions.forEach(question => {
                     const maxPoints = question.questions.reduce((a, b) => {
                         return (!a.options ? a : Math.max(...a.options.map(option => option.value))) + Math.max(...b.options.map(option => option.value))
                     }, 0);
-    
-    
+
+
                     lprogress.push({
                         key: question.key,
                         name: question.name,
@@ -56,23 +56,23 @@ const UserMainPage = () => {
                 })
             }
             //there is a document with answers but there might be no level
-            else{
+            else {
                 questions.forEach(question => {
                     const maxPoints = question.questions.reduce((a, b) => {
                         return (!a.options ? a : Math.max(...a.options.map(option => option.value))) + Math.max(...b.options.map(option => option.value))
                     }, 0);
-    
-    
+
+
                     lprogress.push({
                         key: question.key,
                         name: question.name,
-                        isCompleted: !answers[question.key] ? false : answers[question.key].scoreArray.every(score=>score>0),
-                        score: !answers[question.key] ? 0 : answers[question.key].scoreArray.reduce((a, b)=>a+b, 0),
+                        isCompleted: !answers[question.key] ? false : answers[question.key].scoreArray.every(score => score > 0),
+                        score: !answers[question.key] ? 0 : answers[question.key].scoreArray.reduce((a, b) => a + b, 0),
                         max: maxPoints
                     })
                 })
             }
-            
+
 
 
             setProgress([...lprogress]);
@@ -96,18 +96,23 @@ const UserMainPage = () => {
                 progress.map(questionSet => {
                     return (
                         <section>
-                            <h2>{questionSet?.name}</h2>
+                            <h2 onClick={() => {
+                                if (answers && answers[questionSet.key]) {
+                                    dispatch(setQuizQuestions(answers[questionSet.key]))
+                                    navigate('/quiz');
+                                }
+                            }}>{questionSet?.name}</h2>
 
                             {questionSet?.score === 0 &&
                                 <Button
                                     variant='contained'
                                     onClick={() => {
                                         if (!answers || !answers[questionSet.key]) {
-                                            let currentQuiz = questions.find(quiz=>quiz.key===questionSet.key);
+                                            let currentQuiz = questions.find(quiz => quiz.key === questionSet.key);
                                             currentQuiz.scoreArray = new Array(currentQuiz.questions.length).fill(0);
-                                            currentQuiz.questions = currentQuiz.questions.map(question=>{
-                                                let mquestion = question; 
-                                                mquestion.options = mquestion.options.map(option=>{return {...option, selected: false}})
+                                            currentQuiz.questions = currentQuiz.questions.map(question => {
+                                                let mquestion = question;
+                                                mquestion.options = mquestion.options.map(option => { return { ...option, selected: false } })
                                                 return mquestion
                                             })
 
@@ -115,17 +120,17 @@ const UserMainPage = () => {
                                             dispatch(setQuizQuestions(currentQuiz));
 
                                             //send to firebase
-                                            if(!answers){
-                                                let remoteAnswers= {};
+                                            if (!answers) {
+                                                let remoteAnswers = {};
                                                 remoteAnswers[questionSet.key] = currentQuiz;
                                                 addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
-                                            }else{
+                                            } else {
                                                 let remoteAnswers = answers;
                                                 remoteAnswers[questionSet.key] = currentQuiz;
                                                 addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
                                             }
-                                            
-                                        }else{
+
+                                        } else {
                                             dispatch(setQuizQuestions(answers[questionSet.key]))
                                         }
                                         navigate('/quiz')
@@ -140,7 +145,16 @@ const UserMainPage = () => {
                                 <div className={classes.continueSection}>
                                     <div>Набрано балів: {questionSet.score}/{questionSet.max}</div>
                                     <Button className={classes.Button} variant="outlined" color="error">Очистити</Button>
-                                    <Button variant="contained" color="success">Продовжити</Button>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={async () => {
+                                            await dispatch(setQuizQuestions(answers[questionSet.key]));
+                                            navigate('/quiz')
+                                        }}
+                                    >
+                                        Продовжити
+                                    </Button>
                                 </div>
                             }
 
@@ -148,7 +162,29 @@ const UserMainPage = () => {
                                 questionSet.isCompleted &&
                                 <div className={classes.continueSection}>
                                     <div>Cумарна оцінка: <b>{questionSet.score}/{questionSet.max}</b></div>
-                                    <Button className={classes.Button} variant="outlined" color="error">Пройти ще раз</Button>
+                                    <Button
+                                        className={classes.Button}
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={() => {
+                                            let currentQuiz = questions.find(quiz => quiz.key === questionSet.key);
+                                            currentQuiz.scoreArray = new Array(currentQuiz.questions.length).fill(0);
+                                            currentQuiz.questions = currentQuiz.questions.map(question => {
+                                                let mquestion = question;
+                                                mquestion.options = mquestion.options.map(option => { return { ...option, selected: false } })
+                                                return mquestion
+                                            })
+
+                                            //write to pass to quiz component
+                                            dispatch(setQuizQuestions(currentQuiz));
+
+                                            let remoteAnswers = answers;
+                                            remoteAnswers[questionSet.key] = currentQuiz;
+                                            addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
+
+                                            navigate('/quiz')
+                                        }}
+                                    >Пройти ще раз</Button>
                                 </div>
                             }
 
