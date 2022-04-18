@@ -7,28 +7,32 @@ import {
 import { routes } from './routes'
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import BaseLayout from './components/BaseLayout/BaseLayout';
+import { Provider } from 'react-redux';
+import store from './store/store'
 
 import './fonts.css'
 
 
+
 function App() {
   return (
-    <BaseLayout>
-      <Routes>
-        {routes.map(route => {
+    <Provider store={store}>
+      <BaseLayout>
+        <Routes>
+          {routes.map(route => {
+            if (route.isProtected) {
+              return (
+                <Route key={route.path} path={route.path} element={<PrivateRoute />}>
+                  <Route key={route.path} path={route.path} exact={route.exact} element={route.element} />
+                </Route>
+              )
+            }
+            return (<Route key={route.path} path={route.path} element={route.element} />);
+          })}
+        </Routes>
+      </BaseLayout>
+    </Provider>
 
-          if (route.isProtected) {
-            return (
-              <Route key={route.path} path={route.path} element={<PrivateRoute />}>
-                <Route key={route.path} path={route.path} exact={route.exact} element={route.element} />
-              </Route>
-            )
-          }
-
-          return (<Route key={route.path} path={route.path} element={route.element} />);
-        })}
-      </Routes>
-    </BaseLayout>
   );
 }
 

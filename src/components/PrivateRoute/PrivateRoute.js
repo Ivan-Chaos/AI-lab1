@@ -7,7 +7,6 @@ const PrivateRoute = () => {
 
     const [user, setUser] = useState(true);
     onAuthStateChanged(auth, (currentUser)=>{
-        debugger;
         setUser(currentUser);
     })
 
