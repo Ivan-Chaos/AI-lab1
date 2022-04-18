@@ -94,10 +94,11 @@ const Quiz = () => {
                                                         });
                                                     ltQuiz.questions[qindex].options[oindex].selected = true;
                                                     ltQuiz.scoreArray[qindex] = option.value;
+                                                    debugger;
                                                     dispatch(setQuizQuestions(ltQuiz));
                                                     setCurrentQuestionIndex(qindex + 1);
 
-                                                    let tanswers = answers;
+                                                    let tanswers = JSON.parse(JSON.stringify(answers));
                                                     tanswers[currentQuiz.key] = ltQuiz;
                                                     setAnswers(tanswers);
                                                     addAnswers(tanswers, user.email.replace("@lab1.com", ''));
@@ -109,7 +110,7 @@ const Quiz = () => {
                                         )}
                                     </div>
                                     {qindex === currentQuiz.questions.length - 1 &&
-                                        <div style={{ textAlign: 'right', zIndex: '5' }}>
+                                        <div style={{ textAlign: 'right', zIndex: '5', marginTop: '0.5em' }}>
                                             <Button
                                                 variant='contained'
                                                 disabled={!currentQuiz.scoreArray.every(e => e > 0)}

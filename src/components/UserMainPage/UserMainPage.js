@@ -144,7 +144,31 @@ const UserMainPage = () => {
                                 questionSet.score > 0 && !questionSet.isCompleted &&
                                 <div className={classes.continueSection}>
                                     <div>Набрано балів: {questionSet.score}/{questionSet.max}</div>
-                                    <Button className={classes.Button} variant="outlined" color="error">Очистити</Button>
+                                    <Button 
+                                        className={classes.Button} 
+                                        variant="outlined" 
+                                        color="error"
+                                        onClick={()=>{
+                                            let currentQuiz = questions.find(quiz => quiz.key === questionSet.key);
+                                            currentQuiz.scoreArray = new Array(currentQuiz.questions.length).fill(0);
+                                            currentQuiz.questions = currentQuiz.questions.map(question => {
+                                                let mquestion = question;
+                                                mquestion.options = mquestion.options.map(option => { return { ...option, selected: false } })
+                                                return mquestion
+                                            })
+
+                                            //write to pass to quiz component
+                                            dispatch(setQuizQuestions(currentQuiz));
+
+                                            let remoteAnswers = answers;
+                                            remoteAnswers[questionSet.key] = currentQuiz;
+                                            addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
+
+                                            window.location.reload();
+                                        }}
+                                    >
+                                        Очистити
+                                    </Button>
                                     <Button
                                         variant="contained"
                                         color="success"

@@ -1,3 +1,4 @@
+import { async } from '@firebase/util';
 import {
     getFirestore,
     collection,
@@ -19,6 +20,19 @@ export async function getQuestions() {
         questionsList.sort((a, b)=>a.level-b.level);
         
         return questionsList;
+    } catch (error) {
+        debugger;
+    }
+}
+
+export async function getAnswers(){
+    try {
+        const answersCollection = collection(db, 'answers');
+        const answersSnapshot = await getDocs(answersCollection);
+        let answersList = answersSnapshot.docs.map(doc => {
+            return { ...doc.data()};
+        });       
+        return answersList;
     } catch (error) {
         debugger;
     }
