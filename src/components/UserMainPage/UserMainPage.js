@@ -106,7 +106,7 @@ const UserMainPage = () => {
                             {questionSet?.score === 0 &&
                                 <Button
                                     variant='contained'
-                                    onClick={() => {
+                                    onClick={async () => {
                                         if (!answers || !answers[questionSet.key]) {
                                             let currentQuiz = questions.find(quiz => quiz.key === questionSet.key);
                                             currentQuiz.scoreArray = new Array(currentQuiz.questions.length).fill(0);
@@ -123,11 +123,11 @@ const UserMainPage = () => {
                                             if (!answers) {
                                                 let remoteAnswers = {};
                                                 remoteAnswers[questionSet.key] = currentQuiz;
-                                                addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
+                                                await addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
                                             } else {
                                                 let remoteAnswers = answers;
                                                 remoteAnswers[questionSet.key] = currentQuiz;
-                                                addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
+                                                await addAnswers(remoteAnswers, user.email.replace("@lab1.com", ''));
                                             }
 
                                         } else {
